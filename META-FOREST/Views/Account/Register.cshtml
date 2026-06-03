@@ -1,0 +1,54 @@
+﻿@model MetaForest.Models.ViewModels.RegisterViewModel
+
+@{
+    ViewData["Title"] = "Kayıt Ol - Meta Forest";
+}
+
+<div class="row justify-content-center mt-5">
+    <div class="col-md-6">
+        <div class="card shadow-lg p-4" style="background-color: #1a1c23; border: 1px solid #2ecc71;">
+            <h2 class="text-center mb-4" style="color: #2ecc71;">Meta Orman'a Katıl</h2>
+
+            <form asp-action="Register" method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                <div class="mb-3">
+                    <label asp-for="Email" class="form-label text-light"></label>
+                    <input asp-for="Email" class="form-control bg-dark text-light border-secondary" placeholder="ornek@mail.com" />
+                    <span asp-validation-for="Email" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Password" class="form-label text-light"></label>
+                    <input asp-for="Password" class="form-control bg-dark text-light border-secondary" placeholder="******" />
+                    <span asp-validation-for="Password" class="text-danger"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="ConfirmPassword" class="form-label text-light"></label>
+                    <input asp-for="ConfirmPassword" class="form-control bg-dark text-light border-secondary" placeholder="******" />
+                    <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+                </div>
+
+                <div class="form-check mb-4">
+                    <input asp-for="IsAdmin" class="form-check-input" type="checkbox">
+                    <label asp-for="IsAdmin" class="form-check-label text-warning">
+                        Bu hesabı Yönetici (Admin) olarak kaydet
+                    </label>
+                </div>
+
+                <button type="submit" class="btn w-100 fw-bold" style="background-color: #2ecc71; color: #000;">KAYIT OL</button>
+            </form>
+
+            <div class="text-center mt-3">
+                <a asp-action="Login" class="text-decoration-none" style="color: #00ffcc;">Zaten hesabın var mı? Giriş Yap</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
