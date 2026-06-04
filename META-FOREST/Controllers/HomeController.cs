@@ -86,9 +86,62 @@ namespace MetaForest.Controllers
         }
 
         [Authorize(Roles = "Admin")]
-        public IActionResult AdminPanel()
+        public async Task<IActionResult> AdminPanel()
         {
-            return View();
+            // Veritabanından tüm RewardAssets'i çek
+            var rewardAssets = await _context.RewardAssets.ToListAsync();
+
+            // Listeyi View'a model olarak gönder
+            return View(rewardAssets);
         }
+
+        // ========== SÜRÜKLE-BIRAK (DRAG & DROP) GÜNCELLEME ==========
+        [HttpPost]
+        public async Task<IActionResult> MoveAsset([FromBody] MoveAssetRequest request)
+        {
+            try
+            {
+                // Güvenlik: Kullanıcının ID'sini al
+                var userId = _userManager.GetUserId(User);
+
+                // Varlığı veritabanından bul
+                var asset = await _context.PlantedAssets
+                    .FirstOrDefaultAsync(p => p.Id == request.AssetId);
+
+                // Eğer varlık bulunamadıysa
+                if (asset == null)
+                {
+                    return Json(new { success = false, message = "Varlık bulunamadı." });
+                }
+
+                // Güvenlik kontrolü: Varlığın sahibi bu kullanıcı mı?
+                if (asset.UserId != userId)
+                {
+                    return Json(new { success = false, message = "Bu varlığı taşıma yetkiniz yok." });
+                }
+
+                // Koordinatları güncelle
+                asset.GridX = request.NewX;
+                asset.GridY = request.NewY;
+
+                // Veritabanına kaydet
+                _context.PlantedAssets.Update(asset);
+                await _context.SaveChangesAsync();
+
+                return Json(new { success = true, message = "Varlık başarıyla taşındı." });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, message = $"Hata: {ex.Message}" });
+            }
+        }
+    }
+
+    // ========== DRAG & DROP İSTEĞİ İÇİN MODEL SINIFI ==========
+    public class MoveAssetRequest
+    {
+        public int AssetId { get; set; }
+        public int NewX { get; set; }
+        public int NewY { get; set; }
     }
 }
