@@ -148,5 +148,54 @@ namespace MetaForest.Services
             var cityName = _configuration["WeatherSettings:CityName"] ?? "Istanbul";
             return await GetWeatherByCityAsync(cityName);
         }
+
+        public async Task<double> GetMoneyMultiplierAsync()
+        {
+            try
+            {
+                var weather = await GetWeatherAsync();
+
+                if (weather == null || weather.IsError)
+                {
+                    // Hava durumu alınamadıysa varsayılan 1.0x çarpanı döner
+                    return 1.0;
+                }
+
+                // Hava durumuna göre çarpanı belirle
+                var weatherMain = weather.WeatherDescription?.ToLower() ?? "";
+
+                return weatherMain switch
+                {
+                    // Yağmur en yüksek çarpanı (1.5x)
+                    "rain" => 1.5,
+                    "rainy" => 1.5,
+                    "drizzle" => 1.3,
+
+                    // Kar çarpanı (1.2x)
+                    "snow" => 1.2,
+                    "snowy" => 1.2,
+
+                    // Fırtına çarpanı (1.3x)
+                    "thunderstorm" => 1.3,
+                    "storm" => 1.3,
+
+                    // Bulutlu ve berrak - normal çarpan (1.0x)
+                    "clouds" => 1.0,
+                    "cloudy" => 1.0,
+                    "clear" => 1.0,
+                    "sunny" => 1.0,
+                    "mist" => 1.0,
+                    "fog" => 1.0,
+
+                    // Varsayılan
+                    _ => 1.0
+                };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Para çarpanı hesaplanırken hata oluştu.");
+                return 1.0; // Hata durumunda varsayılan çarpan
+            }
+        }
     }
 }

@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using MetaForest.Data;
 using Microsoft.AspNetCore.Identity;
 using MetaForest.Services;
+using MetaForest.Helpers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -31,16 +32,23 @@ builder.Services.ConfigureApplicationCookie(options =>
 // 2. Hava Durumu Servisi Ekleme
 builder.Services.AddHttpClient<IWeatherService, WeatherService>();
 
-// 3. MVC (Model-View-Controller) Servislerini Ekleme
+// 3. Ödül Hesaplama Yardımcısı Ekleme
+builder.Services.AddScoped<RewardCalculator>();
+
+// 4. MVC (Model-View-Controller) Servislerini Ekleme
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
 
-// 3. Tarayıcı ve İstek Ayarları (Middleware)
+// 5. Tarayıcı ve İstek Ayarları (Middleware)
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
     app.UseHsts();
+}
+else
+{
+    app.UseDeveloperExceptionPage(); // Development'de detaylı hata göster
 }
 
 app.UseHttpsRedirection();
@@ -58,11 +66,11 @@ app.UseRouting();
 app.UseAuthentication(); // Üyelik/Giriş sistemi için gerekli
 app.UseAuthorization();
 
-// 4. Varsayılan Sayfa Yönlendirmesi (Rota Ayarı)
+// 6. Varsayılan Sayfa Yönlendirmesi (Rota Ayarı)
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.Run();
 
-app.Run();
+app.Run();app.Run();

@@ -5,6 +5,10 @@
     string currentRealm = ViewBag.SelectedRealm ?? "cyber";
 }
 
+@section Styles {
+    <link rel="stylesheet" href="~/css/atmosphere.css" />
+}
+
 <div class="row mt-4">
     <div class="col-md-4 text-center">
         <div class="card p-4 shadow mb-4" style="background-color: #1a1c23; border: 2px solid #3498db;">
@@ -271,4 +275,7 @@
             });
         }
     </script>
+
+    <script src="~/js/atmosphere.js"></script>
 }
+
