@@ -1,9 +1,8 @@
-namespace META_FOREST.Models
+namespace MetaForest.Models
 {
     public class ErrorViewModel
     {
         public string? RequestId { get; set; }
-
         public bool ShowRequestId => !string.IsNullOrEmpty(RequestId);
     }
 }

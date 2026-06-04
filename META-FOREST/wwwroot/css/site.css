@@ -29,3 +29,87 @@ body {
 .form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
   text-align: start;
 }
+
+
+/* ===== META FOREST - Aðaç Animasyonu ===== */
+.tree-animation {
+    animation: sway 3s ease-in-out infinite;
+}
+
+@keyframes sway {
+    0%, 100% {
+        transform: rotate(0deg);
+    }
+
+    50% {
+        transform: rotate(2deg);
+    }
+}
+/* HOVER Efekti için*/
+.grid-cell:hover {
+    transform: translateZ(12px) scale(1.05);
+    border-color: #2ecc71 !important;
+    box-shadow: 0 12px 20px rgba(46, 204, 113, 0.3);
+}
+
+/* ===== TEMA SÝSTEMÝ ===== */
+body.light-theme {
+    background-color: #f0f2f5 !important;
+    color: #1a1a2e !important;
+}
+
+    body.light-theme .card {
+        background-color: #ffffff !important;
+        border-color: #dee2e6 !important;
+        color: #1a1a2e !important;
+    }
+
+    body.light-theme .navbar-custom {
+        background-color: #ffffff !important;
+        border-bottom: 2px solid #2ecc71;
+    }
+
+    /* Orman - yeþil */
+    body.light-theme .realm-cyber .grid-cell {
+        background-color: #e8f5e9 !important;
+        box-shadow: 0 6px 0 #c8e6c9, 0 8px 10px rgba(0,0,0,0.15) !important;
+    }
+
+    /* Ejderha - kýrmýzý */
+    body.light-theme .realm-dragon .grid-cell {
+        background-color: #fde8e8 !important;
+        box-shadow: 0 6px 0 #f5c6c6, 0 8px 10px rgba(0,0,0,0.15) !important;
+    }
+
+    /* Çizgi Film - sarý */
+    body.light-theme .realm-cartoon .grid-cell {
+        background-color: #fef9e7 !important;
+        box-shadow: 0 6px 0 #fde68a, 0 8px 10px rgba(0,0,0,0.15) !important;
+    }
+
+    body.light-theme .text-secondary {
+        color: #555 !important;
+    }
+
+    body.light-theme .text-light {
+        color: #1a1a2e !important;
+    }
+
+    body.light-theme #phaseInfo {
+        background-color: #e8f5e9 !important;
+    }
+
+    body.light-theme #countdownDisplay {
+        color: #16a34a !important;
+    }
+
+    body.light-theme .form-select {
+        background-color: #ffffff !important;
+        color: #1a1a2e !important;
+        border-color: #ced4da !important;
+    }
+
+    body.light-theme .footer {
+        background-color: #ffffff !important;
+    }
+

@@ -1,0 +1,60 @@
+@using MetaForest.Models
+@model RewardAsset
+
+@{
+    ViewData["Title"] = "Yeni Ödül Oluþtur";
+}
+
+<div class="container-fluid py-5" style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); min-height: 100vh;">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card bg-dark border-primary shadow-lg">
+                <div class="card-header bg-primary border-bottom border-primary">
+                    <h4 class="mb-0 text-white">
+                        <i class="bi bi-plus-circle"></i> Yeni Ödül Ekle
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <form method="post" asp-action="Create">
+                        @Html.AntiForgeryToken()
+
+                        <div class="mb-3">
+                            <label asp-for="Name" class="form-label text-white fw-bold">Ödül Adý</label>
+                            <input asp-for="Name" class="form-control bg-secondary text-white border-info" placeholder="Örn: Siber Devre Aðacý" />
+                            <span asp-validation-for="Name" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="RealmType" class="form-label text-white fw-bold">Bölge Türü</label>
+                            <input asp-for="RealmType" class="form-control bg-secondary text-white border-info" placeholder="Örn: cyber, dragon, cartoon" />
+                            <span asp-validation-for="RealmType" class="text-danger small"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="PhaseLevel" class="form-label text-white fw-bold">Evrim Seviyesi</label>
+                            <input asp-for="PhaseLevel" type="number" class="form-control bg-secondary text-white border-info" placeholder="1, 2 veya 3" min="1" max="3" />
+                            <span asp-validation-for="PhaseLevel" class="text-danger small"></span>
+                            <small class="d-block text-muted mt-1">1: Bebek/Fide, 2: Orta, 3: Savaþçý/Ulu Aðaç</small>
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="WebmFileName" class="form-label text-white fw-bold">Animasyon Dosyasý (Webm)</label>
+                            <input asp-for="WebmFileName" class="form-control bg-secondary text-white border-info" placeholder="Örn: cyber_lvl1.webm" />
+                            <span asp-validation-for="WebmFileName" class="text-danger small"></span>
+                            <small class="d-block text-muted mt-1">Dosya adý wwwroot/assets/animations/ içerisindeki dosyayý referans alýr</small>
+                        </div>
+
+                        <div class="d-grid gap-2 d-md-flex justify-content-md-between">
+                            <a href="@Url.Action("Index")" class="btn btn-secondary btn-lg">
+                                <i class="bi bi-arrow-left"></i> Geri Dön
+                            </a>
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="bi bi-check-circle"></i> Ödül Oluþtur
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
