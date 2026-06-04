@@ -195,7 +195,13 @@
                 durationSelect.disabled = true;
                 btnStart.classList.add('d-none');
                 btnGiveUp.classList.remove('d-none');
-                totalSeconds = durationSelect.value * 60;
+
+                // Faz 1: 10 saniye, Faz 2: 30 dakika, Faz 3: 60 dakika
+                if (durationSelect.value == "10") {
+                    totalSeconds = 10;  // 10 saniye
+                } else {
+                    totalSeconds = durationSelect.value * 60;  // Dakika cinsinden, saniyeye çevir
+                }
                 updateDisplay();
 
                 timer = setInterval(function() {
@@ -217,7 +223,13 @@
             durationSelect.disabled = false;
             btnStart.classList.remove('d-none');
             btnGiveUp.classList.add('d-none');
-            totalSeconds = durationSelect.value * 60;
+
+            // Faz 1: 10 saniye, Faz 2: 30 dakika, Faz 3: 60 dakika
+            if (durationSelect.value == "10") {
+                totalSeconds = 10;  // 10 saniye
+            } else {
+                totalSeconds = durationSelect.value * 60;  // Dakika cinsinden, saniyeye çevir
+            }
             updateDisplay();
             alert("Odaklanma seansı iptal edildi. Karakter kazanamadınız. 😢");
         });
