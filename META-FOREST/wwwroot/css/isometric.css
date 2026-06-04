@@ -1,0 +1,289 @@
+/* ========== META-FOREST İSOMETRİK 3D TEMA CSS ========== */
+
+/* CSS RENK PALETİ - TEMA DEĞİŞKENLERİ */
+
+/* GLOBAL VARSAYILAN TEMA */
+:root {
+    --primary-color: #2ecc71;
+    --secondary-color: #27ae60;
+    --accent-color: #f39c12;
+    --dark-bg: #1a1c23;
+    --card-bg: #2c2f3a;
+    --border-color: #4f5366;
+    --text-light: #ecf0f1;
+    --text-secondary: #bdc3c7;
+}
+
+/* DRAGON REALM TEMA - LAVA/TURUNCU/KIRMIZI */
+.theme-dragon {
+    --primary-color: #e74c3c;
+    --secondary-color: #c0392b;
+    --accent-color: #f39c12;
+    --dark-bg: #2c1810;
+    --card-bg: #3d2415;
+    --border-color: #ff6b35;
+    --text-light: #fff5f0;
+    --text-secondary: #ffccb3;
+    --realm-glow: rgba(231, 76, 60, 0.3);
+}
+
+/* CYBER-SPACE TEMA - MOR/MAVI/NEON */
+.theme-cyber {
+    --primary-color: #9b59b6;
+    --secondary-color: #8e44ad;
+    --accent-color: #3498db;
+    --dark-bg: #0f0f1e;
+    --card-bg: #1a1a3a;
+    --border-color: #00ffff;
+    --text-light: #e0d7ff;
+    --text-secondary: #b8a7ff;
+    --realm-glow: rgba(52, 152, 219, 0.3);
+}
+
+/* CARTOON UNIVERSE TEMA - YEŞİL/RENKLİ/DOĞA */
+.theme-cartoon {
+    --primary-color: #2ecc71;
+    --secondary-color: #27ae60;
+    --accent-color: #f39c12;
+    --dark-bg: #1a3a1a;
+    --card-bg: #2d5a2d;
+    --border-color: #52d452;
+    --text-light: #f0fff0;
+    --text-secondary: #b3ffb3;
+    --realm-glow: rgba(46, 204, 113, 0.3);
+}
+
+/* ========== İSOMETRİK GRID STİLİ ========== */
+
+.isometric-container {
+    perspective: 1000px;
+    transform-style: preserve-3d;
+    width: 100%;
+    height: auto;
+}
+
+/* İSOMETRİK GRID - BASE */
+.isometric-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+    padding: 30px;
+    background: linear-gradient(135deg, var(--dark-bg) 0%, rgba(0, 0, 0, 0.3) 100%);
+    border-radius: 20px;
+    border: 3px solid var(--border-color);
+    box-shadow: 
+        0 20px 60px rgba(0, 0, 0, 0.5),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+/* İSOMETRİK GRID CELLERİ */
+.isometric-cell {
+    aspect-ratio: 1;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid var(--border-color);
+    border-radius: 12px;
+    background: linear-gradient(135deg, var(--card-bg) 0%, rgba(0, 0, 0, 0.4) 100%);
+    transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    cursor: grab;
+    overflow: hidden;
+    box-shadow: 
+        0 8px 16px rgba(0, 0, 0, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    transform: translateZ(0);
+}
+
+/* HOVERda CEL EFEKTI */
+.isometric-cell:hover {
+    transform: translateY(-8px) scale(1.02);
+    border-color: var(--accent-color);
+    box-shadow: 
+        0 15px 40px rgba(0, 0, 0, 0.5),
+        0 0 20px var(--realm-glow),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(0, 0, 0, 0.6));
+}
+
+/* ACTIVE/SEÇİLİ CEL */
+.isometric-cell.active {
+    border-color: var(--accent-color);
+    box-shadow: 
+        0 0 30px var(--realm-glow),
+        inset 0 0 10px rgba(255, 255, 255, 0.1);
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(0, 0, 0, 0.4));
+}
+
+/* CEL İÇERİĞİ */
+.cell-content {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    z-index: 2;
+}
+
+/* VIDEO PLAYER */
+.cell-video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 10px;
+    pointer-events: none;
+}
+
+/* CELL BADGE (FAS BİLGİSİ) */
+.cell-badge {
+    position: absolute;
+    bottom: 4px;
+    right: 4px;
+    background: var(--primary-color);
+    color: var(--dark-bg);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: bold;
+    z-index: 10;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+}
+
+/* ========== TEMA ANAHTARI - BÖLGE DÜĞMELERI ========== */
+
+.realm-selector {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.realm-btn {
+    padding: 12px 24px;
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    background: var(--card-bg);
+    color: var(--text-light);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: 600;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.realm-btn:hover {
+    transform: translateY(-3px);
+    border-color: var(--accent-color);
+    box-shadow: 0 0 15px var(--realm-glow);
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.realm-btn.active {
+    background: var(--primary-color);
+    border-color: var(--primary-color);
+    color: var(--dark-bg);
+    box-shadow: 0 0 25px var(--realm-glow);
+}
+
+/* ========== İSOMETRİK 3D EFEKTLER ========== */
+
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+}
+
+@keyframes glow {
+    0%, 100% { box-shadow: 0 0 10px var(--realm-glow); }
+    50% { box-shadow: 0 0 20px var(--realm-glow); }
+}
+
+.cell-floating {
+    animation: float 3s ease-in-out infinite;
+}
+
+.cell-glowing {
+    animation: glow 2s ease-in-out infinite;
+}
+
+/* ========== RESPONSİF TASARIM ========== */
+
+@media (max-width: 1024px) {
+    .isometric-grid {
+        grid-template-columns: repeat(4, 1fr);
+        padding: 20px;
+        gap: 6px;
+    }
+}
+
+@media (max-width: 768px) {
+    .isometric-grid {
+        grid-template-columns: repeat(3, 1fr);
+        padding: 15px;
+        gap: 4px;
+    }
+}
+
+@media (max-width: 576px) {
+    .isometric-grid {
+        grid-template-columns: repeat(2, 1fr);
+        padding: 10px;
+        gap: 3px;
+    }
+
+    .realm-selector {
+        flex-direction: column;
+    }
+
+    .realm-btn {
+        width: 100%;
+    }
+}
+
+/* ========== DARK MODE GLOBAL STIL ========== */
+
+body {
+    background: var(--dark-bg);
+    color: var(--text-light);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.card {
+    background: var(--card-bg) !important;
+    border-color: var(--border-color) !important;
+}
+
+.btn-primary {
+    background-color: var(--primary-color) !important;
+    border-color: var(--primary-color) !important;
+    color: var(--dark-bg) !important;
+}
+
+.btn-primary:hover {
+    background-color: var(--secondary-color) !important;
+    border-color: var(--secondary-color) !important;
+}
+
+/* ========== SCROLL BAR STİLİ ========== */
+
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--dark-bg);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--primary-color);
+    border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--accent-color);
+}

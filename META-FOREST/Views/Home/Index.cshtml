@@ -1,274 +1,312 @@
-﻿@model IEnumerable<MetaForest.Models.PlantedAsset>
+@model IEnumerable<MetaForest.Models.PlantedAsset>
 
 @{
-    ViewData["Title"] = "Meta Ormanım";
-    string currentRealm = ViewBag.SelectedRealm ?? "cyber";
+	ViewData["Title"] = "Meta Ormanım - İsometrik";
+	string currentRealm = ViewBag.SelectedRealm ?? "cyber";
+
+	string themeClass = currentRealm switch
+	{
+		"dragon" => "theme-dragon",
+		"cyber" => "theme-cyber",
+		"cartoon" => "theme-cartoon",
+		_ => "theme-cartoon"
+	};
+
+	string realmIcon = currentRealm switch
+	{
+		"dragon" => "🐉",
+		"cyber" => "⚡",
+		"cartoon" => "🎨",
+		_ => "🌍"
+	};
+
+	string realmTitle = currentRealm switch
+	{
+		"dragon" => "Dragon Realm",
+		"cyber" => "Cyber-Space",
+		"cartoon" => "Cartoon Universe",
+		_ => "Meta-Forest"
+	};
 }
 
-<div class="row mt-4">
-    <div class="col-md-4 text-center">
-        <div class="card p-4 shadow mb-4" style="background-color: #1a1c23; border: 2px solid #3498db;">
-            <h4 class="text-info mb-3">🌌 Ada Bölgesi Seç</h4>
-            <div class="btn-group w-100 mb-4">
-                <a href="?realm=cyber" class="btn btn-sm @(currentRealm == "cyber" ? "btn-info" : "btn-outline-info")">⚡ Siber Uzay</a>
-                <a href="?realm=dragon" class="btn btn-sm @(currentRealm == "dragon" ? "btn-danger" : "btn-outline-danger")">🔥 Ejderha</a>
-                <a href="?realm=cartoon" class="btn btn-sm @(currentRealm == "cartoon" ? "btn-warning" : "btn-outline-warning")">🎨 Çizgi Film</a>
-            </div>
+<!DOCTYPE html>
+<html class="@themeClass">
+<head>
+	<link rel="stylesheet" href="~/css/isometric.css" />
+</head>
+<body>
 
-            <hr style="border-color: #3498db;" />
+<div class="container-fluid py-5">
 
-            <h3 class="text-light mt-3">⏱️ Odaklanma Sayacı</h3>
+	<!-- BAŞLIK VE BÖLGE SEÇİCİ -->
+	<div class="row mb-4">
+		<div class="col-12">
+			<div style="text-align: center; margin-bottom: 30px;">
+				<h1 style="font-size: 2.5rem; color: var(--primary-color); margin-bottom: 10px;">
+					@realmIcon @realmTitle
+				</h1>
+				<p style="color: var(--text-secondary); font-size: 1.1rem;">
+					🏝️ Dijital Ormanınıza Hoş Geldiniz
+				</p>
+			</div>
 
-            <div class="mb-3">
-                <select id="timerDuration" class="form-select bg-dark text-light border-secondary">
-                    <option value="10">10 Saniye (Test Faz 1)</option>
-                    <option value="30">30 Dakika (Test Faz 2)</option>
-                    <option value="60">60 Dakika (Test Faz 3)</option>
-                </select>
-            </div>
+			<!-- BÖLGE SEÇİCİ DÜĞMELERI -->
+			<div class="realm-selector justify-content-center">
+				<a href="?realm=dragon" class="realm-btn @(currentRealm == "dragon" ? "active" : "")">
+					🐉 Dragon Realm
+				</a>
+				<a href="?realm=cyber" class="realm-btn @(currentRealm == "cyber" ? "active" : "")">
+					⚡ Cyber-Space
+				</a>
+				<a href="?realm=cartoon" class="realm-btn @(currentRealm == "cartoon" ? "active" : "")">
+					🎨 Cartoon Universe
+				</a>
+			</div>
+		</div>
+	</div>
 
-            <div id="countdownDisplay" class="display-1 fw-bold my-4 text-success" style="font-family: monospace;">00:10</div>
+	<div class="row">
+		<!-- SOL PANEL - ODAKLANMA TİMERİ -->
+		<div class="col-lg-3 col-md-4 mb-4">
+			<div class="card h-100 shadow-lg" style="border: 3px solid var(--primary-color); background: var(--card-bg);">
+				<div class="card-header" style="background: var(--primary-color); color: var(--dark-bg); font-weight: bold; text-align: center; padding: 15px;">
+					⏱️ ODAKLANMA SAYACI
+				</div>
 
-            <button id="btnStart" class="btn btn-lg btn-success w-100 fw-bold shadow">ODAKLANMAYI BAŞLAT</button>
-            <button id="btnGiveUp" class="btn btn-lg btn-danger w-100 fw-bold mt-2 d-none">PES ET (Sıfırla)</button>
-        </div>
-    </div>
+				<div class="card-body text-center">
+					<!-- SÜRESİ SEÇ -->
+					<div class="mb-3">
+						<label style="color: var(--text-secondary); font-size: 0.9rem; text-transform: uppercase;">Faz Seç</label>
+						<select id="timerDuration" class="form-select" style="background: var(--dark-bg); color: var(--text-light); border-color: var(--border-color);">
+							<option value="10">10 Saniye (Faz 1 Test)</option>
+							<option value="30">30 Dakika (Faz 2)</option>
+							<option value="60">60 Dakika (Faz 3)</option>
+						</select>
+					</div>
 
-    <div class="col-md-8">
-        <div class="card p-3 shadow text-center" style="background-color: #1a1c23; border: 2px solid #2ecc71;">
-            <h4 class="mb-3" style="color: #2ecc71;">🏝️ Dijital Orman Bölgeniz (@currentRealm.ToUpper())</h4>
-            <p class="text-secondary small">Süre bittiğinde karakteriniz haritada rastgele boş bir kareye kök salacaktır.</p>
+					<!-- BÜYÜK SAYAÇ -->
+					<div id="countdownDisplay" style="font-size: 4rem; font-weight: 900; color: var(--primary-color); font-family: 'Courier New', monospace; margin: 20px 0; text-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);">
+						00:10
+					</div>
 
-            <div class="grid-container d-flex flex-wrap justify-content-center m-auto" style="max-width: 450px;">
-                @for (int y = 0; y < 5; y++)
-                {
-                    @for (int x = 0; x < 5; x++)
-                    {
-                        // Bu koordinatta daha önce dikilmiş bir ağaç var mı kontrol et
-                        var planted = Model.FirstOrDefault(p => p.GridX == x && p.GridY == y);
+					<!-- BUTONLAR -->
+					<div class="d-grid gap-2">
+						<button id="btnStart" class="btn btn-lg fw-bold" style="background: var(--primary-color); color: var(--dark-bg); border: none;">
+							▶️ BAŞLAT
+						</button>
+						<button id="btnGiveUp" class="btn btn-lg fw-bold d-none" style="background: var(--secondary-color); color: var(--dark-bg); border: none;">
+							⏹️ PES ET
+						</button>
+					</div>
 
-                        <div class="grid-cell border d-flex align-items-center justify-content-center m-1 shadow-sm"
-                             data-x="@x" data-y="@y"
-                             style="width: 75px; height: 75px; background-color: #2c2f3a; border-color: #4f5366 !important; border-radius: 8px; position: relative;"
-                             ondragover="onDragOver(event)" ondrop="onDrop(event)">
+					<!-- İPUCU -->
+					<p style="color: var(--text-secondary); font-size: 0.85rem; margin-top: 15px; border-top: 1px solid var(--border-color); padding-top: 15px;">
+						💡 Seansı tamamlayın ve yeni ağaçlar kazanın!
+					</p>
+				</div>
+			</div>
+		</div>
 
-                            @if (planted != null)
-                            {
-                                <div class="planted-asset" 
-                                     draggable="true" 
-                                     data-asset-id="@planted.Id"
-                                     ondragstart="onDragStart(event)"
-                                     ondragend="onDragEnd(event)"
-                                     style="cursor: grab; width: 65px; height: 65px; display: flex; align-items: center; justify-content: center;">
-                                    <video width="65" height="65" autoplay loop muted playsinline style="pointer-events: none;">
-                                        <source src="/assets/animations/@planted.RewardAsset.WebmFileName" type="video/webm">
-                                    </video>
-                                    <span class="position-absolute bottom-0 start-50 translate-middle-x badge bg-dark opacity-75" style="font-size: 8px;">F @planted.RewardAsset.PhaseLevel</span>
-                                </div>
-                            }
-                        </div>
-                    }
-                }
-            </div>
-        </div>
-    </div>
+		<!-- SAĞ PANEL - İSOMETRİK GRID -->
+		<div class="col-lg-9 col-md-8">
+			<div style="background: linear-gradient(135deg, var(--card-bg) 0%, rgba(0, 0, 0, 0.3) 100%); border-radius: 20px; border: 3px solid var(--border-color); padding: 30px; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);">
+
+				<h3 style="color: var(--primary-color); margin-bottom: 20px; text-align: center;">
+					🌳 5x5 İsometrik Orman Izgarası
+				</h3>
+
+				<!-- İSOMETRİK GRID -->
+				<div class="isometric-grid">
+					@for (int y = 0; y < 5; y++)
+					{
+						@for (int x = 0; x < 5; x++)
+						{
+							var planted = Model?.FirstOrDefault(p => p.GridX == x && p.GridY == y);
+
+							<div class="isometric-cell" 
+								 data-x="@x" data-y="@y"
+								 ondragover="onDragOver(event)" 
+								 ondrop="onDrop(event)"
+								 @(planted != null ? "class='active'" : "")>
+
+								@if (planted != null)
+								{
+									<div class="cell-content planted-asset" 
+										 draggable="true" 
+										 data-asset-id="@planted.Id"
+										 ondragstart="onDragStart(event)"
+										 ondragend="onDragEnd(event)">
+										<video class="cell-video" autoplay loop muted playsinline>
+											<source src="/assets/animations/@planted.RewardAsset.WebmFileName" type="video/webm">
+										</video>
+										<span class="cell-badge">F@planted.RewardAsset.PhaseLevel</span>
+									</div>
+								}
+							</div>
+						}
+					}
+				</div>
+
+				<p style="color: var(--text-secondary); text-align: center; margin-top: 20px; font-size: 0.9rem;">
+					💚 Seansa tamamlayın ve rastgele bir kareye ağaç eklenecektir
+				</p>
+			</div>
+		</div>
+	</div>
 </div>
 
 @section Scripts {
-    <script>
-        // ========== SÜRÜKLE-BIRAK (DRAG & DROP) FONKSİYONLARI ==========
-        let draggedElement = null;
+	<script>
+		// ========== SÜRÜKLE-BIRAK ALTYAPI ==========
+		let draggedElement = null;
 
-        function onDragStart(event) {
-            draggedElement = event.currentTarget;
-            event.dataTransfer.effectAllowed = "move";
-            event.currentTarget.style.opacity = "0.5";
-        }
+		function onDragStart(event) {
+			draggedElement = event.currentTarget;
+			event.dataTransfer.effectAllowed = "move";
+			event.currentTarget.style.opacity = "0.6";
+		}
 
-        function onDragOver(event) {
-            event.preventDefault();
-            event.dataTransfer.dropEffect = "move";
-            event.currentTarget.style.backgroundColor = "#3a3d48";
-            event.currentTarget.style.borderColor = "#3498db !important";
-        }
+		function onDragOver(event) {
+			event.preventDefault();
+			event.dataTransfer.dropEffect = "move";
+			event.currentTarget.style.backgroundColor = "rgba(255, 255, 255, 0.1)";
+		}
 
-        function onDragEnd(event) {
-            if (draggedElement) {
-                draggedElement.style.opacity = "1";
-            }
-            // Tüm grid-cell'lerin rengini eski haline getir
-            document.querySelectorAll('.grid-cell').forEach(cell => {
-                cell.style.backgroundColor = "#2c2f3a";
-                cell.style.borderColor = "#4f5366 !important";
-            });
-        }
+		function onDragEnd(event) {
+			if (draggedElement) draggedElement.style.opacity = "1";
+			document.querySelectorAll('.isometric-cell').forEach(cell => {
+				cell.style.backgroundColor = "transparent";
+			});
+		}
 
-        function onDrop(event) {
-            event.preventDefault();
+		function onDrop(event) {
+			event.preventDefault();
+			if (!draggedElement) return;
 
-            if (!draggedElement) return;
+			const targetCell = event.currentTarget;
+			const assetId = draggedElement.dataset.assetId;
+			const newX = targetCell.dataset.x;
+			const newY = targetCell.dataset.y;
 
-            const targetCell = event.currentTarget;
-            const assetId = draggedElement.dataset.assetId;
-            const newX = targetCell.dataset.x;
-            const newY = targetCell.dataset.y;
+			const existingAsset = targetCell.querySelector('.planted-asset');
+			if (existingAsset && existingAsset !== draggedElement) {
+				alert("Bu kare zaten dolu!");
+				draggedElement.style.opacity = "1";
+				return;
+			}
 
-            // Varlığı hedef grid-cell'e taşı
-            // Eğer hedef cell zaten doluysa işlemi iptal et
-            const existingAsset = targetCell.querySelector('.planted-asset');
-            if (existingAsset && existingAsset !== draggedElement) {
-                alert("Bu kare zaten dolu! Başka bir kareye taşıyın.");
-                draggedElement.style.opacity = "1";
-                return;
-            }
+			targetCell.innerHTML = '';
+			targetCell.appendChild(draggedElement);
 
-            // Varlığı DOM'da yeni grid-cell'e taşı
-            targetCell.innerHTML = '';
-            targetCell.appendChild(draggedElement);
+			fetch('/Home/MoveAsset', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					assetId: parseInt(assetId),
+					newX: parseInt(newX),
+					newY: parseInt(newY)
+				})
+			})
+			.then(r => r.json())
+			.then(data => {
+				if (!data.success) {
+					alert("Hata oluştu!");
+					location.reload();
+				}
+			})
+			.catch(e => {
+				console.error(e);
+				location.reload();
+			});
 
-            // Backend'e yeni koordinatları gönder
-            fetch('/Home/MoveAsset', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    assetId: parseInt(assetId),
-                    newX: parseInt(newX),
-                    newY: parseInt(newY)
-                })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    console.log("✅ Varlık başarıyla taşındı ve veritabanına kaydedildi!");
-                } else {
-                    alert("❌ Hata: Varlık taşınamadı. Lütfen sayfayı yenileyin.");
-                    location.reload();
-                }
-            })
-            .catch(error => {
-                console.error("❌ Fetch hatası:", error);
-                alert("❌ Sunucu hatası. Lütfen sayfayı yenileyin.");
-                location.reload();
-            });
+			draggedElement.style.opacity = "1";
+		}
 
-            draggedElement.style.opacity = "1";
-            targetCell.style.backgroundColor = "#2c2f3a";
-            targetCell.style.borderColor = "#4f5366 !important";
-        }
+		// ========== TIMER ALTYAPI ==========
+		let timer = null, totalSeconds = 10, isRunning = false;
+		const currentRealm = "@currentRealm";
+		const durationSelect = document.getElementById('timerDuration');
+		const display = document.getElementById('countdownDisplay');
+		const btnStart = document.getElementById('btnStart');
+		const btnGiveUp = document.getElementById('btnGiveUp');
 
-        // ========== MEVCUT ODAKLANMA TİMERİ VE DİĞER FONKSİYONLAR ==========
-        let timer = null;
-        let totalSeconds = 10;  // Başlangıçta Faz 1 (10 saniye)
-        let isRunning = false;
-        const currentRealm = "@currentRealm";
+		durationSelect.addEventListener('change', function() {
+			if (!isRunning) {
+				totalSeconds = this.value == "10" ? 10 : this.value * 60;
+				updateDisplay();
+			}
+		});
 
-        const durationSelect = document.getElementById('timerDuration');
-        const display = document.getElementById('countdownDisplay');
-        const btnStart = document.getElementById('btnStart');
-        const btnGiveUp = document.getElementById('btnGiveUp');
+		function updateDisplay() {
+			let minutes = Math.floor(totalSeconds / 60);
+			let seconds = totalSeconds % 60;
+			display.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+		}
 
-        // Süre seçimi değiştiğinde ekranı güncelle
-        durationSelect.addEventListener('change', function() {
-            if(!isRunning) {
-                // Faz 1: 10 saniye, Faz 2: 30 dakika, Faz 3: 60 dakika
-                if (this.value == "10") {
-                    totalSeconds = 10;  // 10 saniye
-                } else {
-                    totalSeconds = this.value * 60;  // Dakika cinsinden, saniyeye çevir
-                }
-                updateDisplay();
-            }
-        });
+		btnStart.addEventListener('click', function() {
+			if (!isRunning) {
+				isRunning = true;
+				durationSelect.disabled = true;
+				btnStart.classList.add('d-none');
+				btnGiveUp.classList.remove('d-none');
+				totalSeconds = durationSelect.value == "10" ? 10 : durationSelect.value * 60;
 
-        function updateDisplay() {
-            let minutes = Math.floor(totalSeconds / 60);
-            let seconds = totalSeconds % 60;
-            display.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-        }
+				timer = setInterval(function() {
+					totalSeconds--;
+					updateDisplay();
+					if (totalSeconds <= 0) {
+						clearInterval(timer);
+						onFocusComplete();
+					}
+				}, 1000);
+			}
+		});
 
-        btnStart.addEventListener('click', function() {
-            if (!isRunning) {
-                // Sayacı Başlat
-                isRunning = true;
-                durationSelect.disabled = true;
-                btnStart.classList.add('d-none');
-                btnGiveUp.classList.remove('d-none');
+		btnGiveUp.addEventListener('click', function() {
+			clearInterval(timer);
+			isRunning = false;
+			durationSelect.disabled = false;
+			btnStart.classList.remove('d-none');
+			btnGiveUp.classList.add('d-none');
+			totalSeconds = durationSelect.value == "10" ? 10 : durationSelect.value * 60;
+			updateDisplay();
+			alert("Seans iptal edildi.");
+		});
 
-                // Faz 1: 10 saniye, Faz 2: 30 dakika, Faz 3: 60 dakika
-                if (durationSelect.value == "10") {
-                    totalSeconds = 10;  // 10 saniye
-                } else {
-                    totalSeconds = durationSelect.value * 60;  // Dakika cinsinden, saniyeye çevir
-                }
-                updateDisplay();
+		function onFocusComplete() {
+			isRunning = false;
+			durationSelect.disabled = false;
+			btnStart.classList.remove('d-none');
+			btnGiveUp.classList.add('d-none');
 
-                timer = setInterval(function() {
-                    totalSeconds--;
-                    updateDisplay();
+			const emptyCells = [];
+			document.querySelectorAll('.isometric-cell').forEach(cell => {
+				if (cell.children.length === 0) {
+					emptyCells.push({ x: cell.dataset.x, y: cell.dataset.y });
+				}
+			});
 
-                    if (totalSeconds <= 0) {
-                        clearInterval(timer);
-                        onFocusComplete();
-                    }
-                }, 1000);
-            }
-        });
+			if (emptyCells.length === 0) {
+				alert("Tebrikler! Ormanınız tamamen doldu!");
+				return;
+			}
 
-        btnGiveUp.addEventListener('click', function() {
-            // Pes Etme Durumu
-            clearInterval(timer);
-            isRunning = false;
-            durationSelect.disabled = false;
-            btnStart.classList.remove('d-none');
-            btnGiveUp.classList.add('d-none');
+			const randomCell = emptyCells[Math.floor(Math.random() * emptyCells.length)];
+			const selectedMinutes = durationSelect.value;
 
-            // Faz 1: 10 saniye, Faz 2: 30 dakika, Faz 3: 60 dakika
-            if (durationSelect.value == "10") {
-                totalSeconds = 10;  // 10 saniye
-            } else {
-                totalSeconds = durationSelect.value * 60;  // Dakika cinsinden, saniyeye çevir
-            }
-            updateDisplay();
-            alert("Odaklanma seansı iptal edildi. Karakter kazanamadınız. 😢");
-        });
-
-        // BAŞARIYLA TAMAMLANDIĞINDA TETİKLENEN AJAX FONKSİYONU
-        function onFocusComplete() {
-            isRunning = false;
-            durationSelect.disabled = false;
-            btnStart.classList.remove('d-none');
-            btnGiveUp.classList.add('d-none');
-
-            // Haritadaki boş kareleri tespit et
-            const emptyCells = [];
-            document.querySelectorAll('.grid-cell').forEach(cell => {
-                if (cell.children.length === 0) {
-                    emptyCells.push({ x: cell.dataset.x, y: cell.dataset.y });
-                }
-            });
-
-            if (emptyCells.length === 0) {
-                alert("Tebrikler! Odaklandınız ama adanızda hiç boş yer kalmadı!");
-                return;
-            }
-
-            // Boş karelerden rastgele birini seç
-            const randomCell = emptyCells[Math.floor(Math.random() * emptyCells.length)];
-            const selectedMinutes = durationSelect.value;
-
-            // Arka plana (Backend) veriyi gönderiyoruz (CRUD - Ekleme)
-            fetch(`/Home/CompleteSession?durationMinutes=${selectedMinutes}&realm=${currentRealm}&gridX=${randomCell.x}&gridY=${randomCell.y}`, {
-                method: 'POST'
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert(`🎉 Harika iş! ${selectedMinutes} dakika odaklanarak "${data.assetName}" kazandınız ve adanıza eklendi!`);
-                    location.reload(); // Haritayı güncellemek için sayfayı yenile
-                }
-            });
-        }
-    </script>
+			fetch(`/Home/CompleteSession?durationMinutes=${selectedMinutes}&realm=${currentRealm}&gridX=${randomCell.x}&gridY=${randomCell.y}`, {
+				method: 'POST'
+			})
+			.then(response => response.json())
+			.then(data => {
+				if (data.success) {
+					alert(`🎉 ${data.assetName} kazandınız!`);
+					location.reload();
+				}
+			});
+		}
+	</script>
 }
+
+</body>
+</html>
