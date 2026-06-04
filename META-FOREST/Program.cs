@@ -42,6 +42,13 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseStaticFiles(); // WebM videoları, CSS ve JS dosyaları için hayati önem taşır
 
+// Veritabanı migrasyonlarını otomatik olarak uygula
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    dbContext.Database.Migrate();
+}
+
 app.UseRouting();
 
 app.UseAuthentication(); // Üyelik/Giriş sistemi için gerekli
