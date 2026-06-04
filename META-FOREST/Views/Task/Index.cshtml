@@ -1,0 +1,161 @@
+@model IEnumerable<MetaForest.Models.TaskItem>
+
+@{
+	ViewData["Title"] = "Görevler";
+}
+
+<link rel="stylesheet" href="~/css/tasks.css" />
+
+<div class="tasks-container">
+	<div class="tasks-header">
+		<h1 class="tasks-title">📋 Görevler</h1>
+		<a href="~/Home/Index" class="btn-back">← Ana Sayfaya Dön</a>
+	</div>
+
+	<!-- Progress Section -->
+	<div class="progress-section">
+		<div class="progress-info">
+			<span class="progress-label">Tamamlanma Oranı</span>
+			<span class="progress-stat">@ViewBag.CompletedTasks / @ViewBag.TotalTasks</span>
+		</div>
+		<div class="progress-bar-container">
+			<div class="progress-bar" style="width: @ViewBag.CompletionPercentage%">
+				<span class="progress-text">%@ViewBag.CompletionPercentage</span>
+			</div>
+		</div>
+	</div>
+
+	<!-- Task Statistics -->
+	<div class="stats-row">
+		<div class="stat-card stat-total">
+			<span class="stat-icon">📊</span>
+			<div class="stat-content">
+				<div class="stat-number">@ViewBag.TotalTasks</div>
+				<div class="stat-label">Toplam Görev</div>
+			</div>
+		</div>
+		<div class="stat-card stat-pending">
+			<span class="stat-icon">⏳</span>
+			<div class="stat-content">
+				<div class="stat-number">@ViewBag.PendingTasks</div>
+				<div class="stat-label">Beklemede</div>
+			</div>
+		</div>
+		<div class="stat-card stat-completed">
+			<span class="stat-icon">✅</span>
+			<div class="stat-content">
+				<div class="stat-number">@ViewBag.CompletedTasks</div>
+				<div class="stat-label">Tamamlandı</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Add New Task Section -->
+	<div class="add-task-section">
+		<h3 class="section-title">Yeni Görev Ekle</h3>
+		<form method="post" action="/Task/Add" class="add-task-form">
+			<div class="form-row">
+				<input type="text" name="Title" placeholder="Görev başlığı..." class="form-input" required />
+				<select name="Priority" class="form-select">
+					<option value="Low">Düşük Öncelik</option>
+					<option value="Medium" selected>Orta Öncelik</option>
+					<option value="High">Yüksek Öncelik</option>
+				</select>
+			</div>
+			<div class="form-row">
+				<textarea name="Description" placeholder="Açıklama (isteğe bağlı)..." class="form-textarea" rows="2"></textarea>
+			</div>
+			<button type="submit" class="btn-add-task">+ Görev Ekle</button>
+		</form>
+	</div>
+
+	<!-- Filter Tabs -->
+	<div class="filter-tabs">
+		<button class="tab-btn tab-all active" onclick="filterTasks('all')">
+			Tümü (@ViewBag.TotalTasks)
+		</button>
+		<button class="tab-btn tab-pending" onclick="filterTasks('pending')">
+			Aktif (@ViewBag.PendingTasks)
+		</button>
+		<button class="tab-btn tab-completed" onclick="filterTasks('completed')">
+			Tamamlandı (@ViewBag.CompletedTasks)
+		</button>
+	</div>
+
+	<!-- Tasks List -->
+	<div class="tasks-list">
+		@if (Model.Any())
+		{
+			@foreach (var task in Model)
+			{
+				<div class="task-card @(task.IsCompleted ? "completed" : "") task-@(task.IsCompleted ? "completed" : "pending")" data-priority="@task.Priority">
+					<div class="task-header">
+						<form method="post" action="/Task/ToggleComplete/@task.Id" style="display: inline;">
+							<input type="checkbox" class="task-checkbox" @(task.IsCompleted ? "checked" : "") onchange="this.form.submit()" />
+						</form>
+						<div class="task-title-section">
+							<h3 class="task-title @(task.IsCompleted ? "strikethrough" : "")">
+								@task.Title
+							</h3>
+							@if (!string.IsNullOrEmpty(task.Description))
+							{
+								<p class="task-description">@task.Description</p>
+							}
+						</div>
+						<div class="task-priority priority-@task.Priority.ToLower()">
+							@{
+								var priorityText = task.Priority switch
+								{
+									"High" => "🔴 Yüksek",
+									"Medium" => "🟡 Orta",
+									"Low" => "🟢 Düşük",
+									_ => task.Priority
+								};
+							}
+							@priorityText
+						</div>
+					</div>
+
+					<div class="task-footer">
+						<span class="task-date">
+							📅 @task.CreatedAt.ToString("dd.MM.yyyy HH:mm")
+						</span>
+						<form method="post" action="/Task/Delete/@task.Id" style="display: inline;" onsubmit="return confirm('Bu görev silinsin mi?');">
+							<button type="submit" class="btn-delete">🗑️ Sil</button>
+						</form>
+					</div>
+				</div>
+			}
+		}
+		else
+		{
+			<div class="empty-state">
+				<div class="empty-icon">📭</div>
+				<h3>Henüz görev yok</h3>
+				<p>Yukarıdan yeni bir görev ekleyerek başlayın!</p>
+			</div>
+		}
+	</div>
+</div>
+
+<script>
+	function filterTasks(filter) {
+		const allCards = document.querySelectorAll('.task-card');
+		const tabs = document.querySelectorAll('.tab-btn');
+
+		// Update active tab
+		tabs.forEach(tab => tab.classList.remove('active'));
+		event.target.classList.add('active');
+
+		// Filter tasks
+		allCards.forEach(card => {
+			if (filter === 'all') {
+				card.style.display = 'block';
+			} else if (filter === 'pending') {
+				card.style.display = card.classList.contains('task-pending') ? 'block' : 'none';
+			} else if (filter === 'completed') {
+				card.style.display = card.classList.contains('task-completed') ? 'block' : 'none';
+			}
+		});
+	}
+</script>

@@ -49,8 +49,33 @@ app.UseStaticFiles(); // WebM videoları, CSS ve JS dosyaları için hayati öne
 // Veritabanı migrasyonlarını otomatik olarak uygula
 using (var scope = app.Services.CreateScope())
 {
-    var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    dbContext.Database.Migrate();
+    try
+    {
+        var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        dbContext.Database.Migrate();
+
+        // TaskItems tablosunu oluştur (varsa yok sayar)
+        dbContext.Database.ExecuteSqlRaw(@"
+            IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'TaskItems')
+            BEGIN
+                CREATE TABLE TaskItems (
+                    Id INT PRIMARY KEY IDENTITY(1,1),
+                    UserId NVARCHAR(MAX) NOT NULL,
+                    Title NVARCHAR(255) NOT NULL,
+                    Description NVARCHAR(1000) NULL,
+                    IsCompleted BIT NOT NULL DEFAULT 0,
+                    CreatedAt DATETIME2 NOT NULL,
+                    UpdatedAt DATETIME2 NOT NULL,
+                    Priority NVARCHAR(20) NOT NULL DEFAULT 'Medium'
+                )
+            END
+        ");
+    }
+    catch (Exception ex)
+    {
+        var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "Veritabanı migrasyon sırasında hata oluştu");
+    }
 }
 
 app.UseRouting();
@@ -61,8 +86,6 @@ app.UseAuthorization();
 // 4. Varsayılan Sayfa Yönlendirmesi (Rota Ayarı)
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
-
-app.Run();
+    pattern: "{controller=Home}/{action=Landing}/{id?}");
 
 app.Run();

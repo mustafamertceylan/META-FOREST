@@ -39,6 +39,14 @@
                             <a class="nav-link text-light" asp-area="" asp-controller="Home" asp-action="Index">Ana Sayfa</a>
                         </li>
 
+                        @* Giriş yapan kullanıcılar için Görevler butonu *@
+                        @if (SignInManager.IsSignedIn(User))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-light" asp-area="" asp-controller="Task" asp-action="Index">📋 Görevler</a>
+                            </li>
+                        }
+
                         @* Eğer kullanıcı giriş yaptıysa ve ADMIN ise bu menüyü görsün *@
                         @if (SignInManager.IsSignedIn(User) && User.IsInRole("Admin"))
                         {

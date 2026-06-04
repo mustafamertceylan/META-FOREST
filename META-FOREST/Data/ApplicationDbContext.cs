@@ -16,5 +16,7 @@ namespace MetaForest.Data
         public DbSet<FocusSession> FocusSessions { get; set; }
         public DbSet<RewardAsset> RewardAssets { get; set; }
         public DbSet<PlantedAsset> PlantedAssets { get; set; }
+        public DbSet<HarcananCoin> HarcananCoins { get; set; }
+        public DbSet<TaskItem> TaskItems { get; set; }
     }
 }
