@@ -6,6 +6,7 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - MetaForest</title>
@@ -66,6 +67,13 @@
                             }
                         }
                     </ul>
+                    <!-- Tema toggle butonu -->
+                    <li class="nav-item ms-2">
+                        <button id="btnTheme" onclick="toggleTheme()"
+                                class="btn btn-sm btn-outline-secondary">
+                            🌙
+                        </button>
+                    </li>
 
                     @* Sağ taraftaki Giriş/Kayıt/Çıkış Butonları (Dinamik Alan) *@
                     <ul class="navbar-nav">
@@ -84,7 +92,7 @@
                             </li>
                             <li class="nav-item">
                                 <form class="form-inline" asp-controller="Account" asp-action="Logout" method="post">
-                                    <button type="submit" class="btn btn-sm btn-outline-dangerfw-bold">Güvenli Çıkış</button>
+                                    <button type="submit" class="btn btn-sm btn-outline-danger fw-bold">Güvenli Çıkış</button>
                                 </form>
                             </li>
                         }

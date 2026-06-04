@@ -24,7 +24,7 @@ namespace MetaForest.Controllers
 
         public async Task<IActionResult> Index(string realm = "cyber")
         {
-            var userId = _userManager.GetUserId(User);
+            var userId = _userManager.GetUserId(User) ?? string.Empty;
 
             var plantedAssets = await _context.PlantedAssets
                 .Include(p => p.RewardAsset)
@@ -38,20 +38,34 @@ namespace MetaForest.Controllers
         [HttpPost]
         public async Task<IActionResult> CompleteSession(int durationMinutes, string realm, int gridX, int gridY)
         {
-            var userId = _userManager.GetUserId(User);
+            var userId = _userManager.GetUserId(User) ?? string.Empty;
 
-            int phaseLevel = 1;
-            if (durationMinutes >= 30 && durationMinutes < 60) phaseLevel = 2;
-            if (durationMinutes >= 60) phaseLevel = 3;
+            int phaseLevel;
+            if (durationMinutes == 0)
+                phaseLevel = 1;
+            else if (durationMinutes <= 30)
+                phaseLevel = 2;
+            else
+                phaseLevel = 3;
+
+            var cellOccupied = await _context.PlantedAssets
+                .AnyAsync(p => p.UserId == userId
+                            && p.ActiveRealm == realm
+                            && p.GridX == gridX
+                            && p.GridY == gridY);
+
+            if (cellOccupied)
+                return Json(new { success = false, message = "Bu kare artık dolu." });
 
             var asset = await _context.RewardAssets
                 .FirstOrDefaultAsync(r => r.RealmType == realm && r.PhaseLevel == phaseLevel);
 
             if (asset == null)
             {
+                string[] phaseNames = { "", "Fidan", "Orta Boy Ağaç", "Ulu Ağaç" };
                 asset = new RewardAsset
                 {
-                    Name = $"{realm.ToUpper()} - Faz {phaseLevel}",
+                    Name = $"{realm.ToUpper()} - {phaseNames[phaseLevel]}",
                     RealmType = realm,
                     PhaseLevel = phaseLevel,
                     WebmFileName = $"{realm}_lvl{phaseLevel}.webm"
@@ -65,7 +79,8 @@ namespace MetaForest.Controllers
                 UserId = userId,
                 DurationMinutes = durationMinutes,
                 SessionDate = DateTime.Now,
-                GainedCoin = durationMinutes * 10
+                GainedCoin = durationMinutes * 10,
+                SelectedRealm = realm
             };
             _context.FocusSessions.Add(session);
 
@@ -82,62 +97,81 @@ namespace MetaForest.Controllers
 
             await _context.SaveChangesAsync();
 
-            return Json(new { success = true, assetName = asset.Name, webm = asset.WebmFileName, coin = session.GainedCoin });
+            return Json(new
+            {
+                success = true,
+                assetName = asset.Name,
+                webm = asset.WebmFileName,
+                coin = session.GainedCoin,
+                phaseLevel = phaseLevel
+            });
         }
 
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> AdminPanel()
         {
-            // Veritabanından tüm RewardAssets'i çek
             var rewardAssets = await _context.RewardAssets.ToListAsync();
-
-            // Listeyi View'a model olarak gönder
             return View(rewardAssets);
         }
 
-        // ========== SÜRÜKLE-BIRAK (DRAG & DROP) GÜNCELLEME ==========
         [HttpPost]
         public async Task<IActionResult> MoveAsset([FromBody] MoveAssetRequest request)
         {
             try
             {
-                // Güvenlik: Kullanıcının ID'sini al
-                var userId = _userManager.GetUserId(User);
+                var userId = _userManager.GetUserId(User) ?? string.Empty;
 
-                // Varlığı veritabanından bul
                 var asset = await _context.PlantedAssets
                     .FirstOrDefaultAsync(p => p.Id == request.AssetId);
 
-                // Eğer varlık bulunamadıysa
                 if (asset == null)
-                {
                     return Json(new { success = false, message = "Varlık bulunamadı." });
-                }
 
-                // Güvenlik kontrolü: Varlığın sahibi bu kullanıcı mı?
                 if (asset.UserId != userId)
-                {
                     return Json(new { success = false, message = "Bu varlığı taşıma yetkiniz yok." });
-                }
 
-                // Koordinatları güncelle
+                var targetOccupied = await _context.PlantedAssets
+                    .AnyAsync(p => p.UserId == userId
+                               && p.ActiveRealm == asset.ActiveRealm
+                               && p.GridX == request.NewX
+                               && p.GridY == request.NewY
+                               && p.Id != request.AssetId);
+
+                if (targetOccupied)
+                    return Json(new { success = false, message = "Hedef kare zaten dolu." });
+
                 asset.GridX = request.NewX;
                 asset.GridY = request.NewY;
-
-                // Veritabanına kaydet
                 _context.PlantedAssets.Update(asset);
                 await _context.SaveChangesAsync();
 
-                return Json(new { success = true, message = "Varlık başarıyla taşındı." });
+                return Json(new { success = true });
             }
             catch (Exception ex)
             {
                 return Json(new { success = false, message = $"Hata: {ex.Message}" });
             }
         }
+
+        [HttpGet]
+        public async Task<IActionResult> GetEmptyCells(string realm)
+        {
+            var userId = _userManager.GetUserId(User) ?? string.Empty;
+
+            var occupiedCells = await _context.PlantedAssets
+                .Where(p => p.UserId == userId && p.ActiveRealm == realm)
+                .Select(p => new { p.GridX, p.GridY })
+                .ToListAsync();
+
+            var emptyCells = from x in Enumerable.Range(0, 5)
+                             from y in Enumerable.Range(0, 5)
+                             where !occupiedCells.Any(o => o.GridX == x && o.GridY == y)
+                             select new { x, y };
+
+            return Json(emptyCells.ToList());
+        }
     }
 
-    // ========== DRAG & DROP İSTEĞİ İÇİN MODEL SINIFI ==========
     public class MoveAssetRequest
     {
         public int AssetId { get; set; }

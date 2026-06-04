@@ -10,7 +10,7 @@
         <div class="card p-4 shadow mb-4" style="background-color: #1a1c23; border: 2px solid #3498db;">
             <h4 class="text-info mb-3">🌌 Ada Bölgesi Seç</h4>
             <div class="btn-group w-100 mb-4">
-                <a href="?realm=cyber" class="btn btn-sm @(currentRealm == "cyber" ? "btn-info" : "btn-outline-info")">⚡ Siber Uzay</a>
+                <a href="?realm=cyber" class="btn btn-sm @(currentRealm == "cyber" ? "btn-info" : "btn-outline-info")">🌳 Orman</a>
                 <a href="?realm=dragon" class="btn btn-sm @(currentRealm == "dragon" ? "btn-danger" : "btn-outline-danger")">🔥 Ejderha</a>
                 <a href="?realm=cartoon" class="btn btn-sm @(currentRealm == "cartoon" ? "btn-warning" : "btn-outline-warning")">🎨 Çizgi Film</a>
             </div>
@@ -21,49 +21,114 @@
 
             <div class="mb-3">
                 <select id="timerDuration" class="form-select bg-dark text-light border-secondary">
-                    <option value="10">10 Saniye (Test Faz 1)</option>
-                    <option value="30">30 Dakika (Test Faz 2)</option>
-                    <option value="60">60 Dakika (Test Faz 3)</option>
+                    <option value="test">🌱 10 Saniye — Fidan (Test)</option>
+                    <option value="mid">🌿 20 Saniye — Orta Boy (Test)</option>
+                    <option value="big">🌳 30 Saniye — Ulu Ağaç (Test)</option>
                 </select>
+            </div>
+
+            <div id="phaseInfo" class="mb-3 py-2 px-3 rounded" style="background-color: #2c2f3a; font-size: 13px;">
+                <span id="phaseIcon">🌱</span>
+                <span id="phaseText" class="text-info ms-1">Bu süreyle küçük bir fidan kazanacaksınız.</span>
             </div>
 
             <div id="countdownDisplay" class="display-1 fw-bold my-4 text-success" style="font-family: monospace;">00:10</div>
 
             <button id="btnStart" class="btn btn-lg btn-success w-100 fw-bold shadow">ODAKLANMAYI BAŞLAT</button>
-            <button id="btnGiveUp" class="btn btn-lg btn-danger w-100 fw-bold mt-2 d-none">PES ET (Sıfırla)</button>
+            <button id="btnGiveUp" class="btn btn-lg btn-danger  w-100 fw-bold mt-2 d-none">PES ET (Sıfırla)</button>
         </div>
     </div>
 
     <div class="col-md-8">
-        <div class="card p-3 shadow text-center" style="background-color: #1a1c23; border: 2px solid #2ecc71;">
-            <h4 class="mb-3" style="color: #2ecc71;">🏝️ Dijital Orman Bölgeniz (@currentRealm.ToUpper())</h4>
-            <p class="text-secondary small">Süre bittiğinde karakteriniz haritada rastgele boş bir kareye kök salacaktır.</p>
+        @{
+            string realmTitle = currentRealm switch
+            {
+                "cyber" => "🌳 Orman Bölgeniz",
+                "dragon" => "🔥 Ejderha Diyarı",
+                "cartoon" => "🎨 Çizgi Film Adası",
+                _ => "🏝️ Ormanınız"
+            };
+            string realmBorderColor = currentRealm switch
+            {
+                "cyber" => "#2ecc71",
+                "dragon" => "#e74c3c",
+                "cartoon" => "#f39c12",
+                _ => "#2ecc71"
+            };
+        }
+        <div class="card p-3 shadow text-center" style="background-color: #1a1c23; border: 2px solid @realmBorderColor;">
+            <h4 class="mb-3" style="color: @realmBorderColor;">@realmTitle</h4>
+            <p class="text-secondary small">Süre bittiğinde ağacınız haritada rastgele boş bir kareye dikilecektir.</p>
 
-            <div class="grid-container d-flex flex-wrap justify-content-center m-auto" style="max-width: 450px;">
+            <div class="grid-container d-flex flex-wrap justify-content-center m-auto realm-@currentRealm"
+                 style="max-width: 600px;
+                    transform: perspective(900px) rotateX(30deg);
+                    transform-style: preserve-3d;
+                    margin-top: 20px;
+                    margin-bottom: 40px;">
                 @for (int y = 0; y < 5; y++)
                 {
                     @for (int x = 0; x < 5; x++)
                     {
-                        // Bu koordinatta daha önce dikilmiş bir ağaç var mı kontrol et
                         var planted = Model.FirstOrDefault(p => p.GridX == x && p.GridY == y);
 
                         <div class="grid-cell border d-flex align-items-center justify-content-center m-1 shadow-sm"
                              data-x="@x" data-y="@y"
-                             style="width: 75px; height: 75px; background-color: #2c2f3a; border-color: #4f5366 !important; border-radius: 8px; position: relative;"
-                             ondragover="onDragOver(event)" ondrop="onDrop(event)">
+                             style="width: 100px; height: 100px; background-color: #2c2f3a;
+                                        border-color: #4f5366 !important; border-radius: 8px; position: relative;
+                                        box-shadow: 0 6px 0 #1a1c23, 0 8px 10px rgba(0,0,0,0.5);
+                                        transition: transform 0.2s;"
+                             ondragover="onDragOver(arguments[0])" ondrop="onDrop(arguments[0])">
 
                             @if (planted != null)
                             {
-                                <div class="planted-asset" 
-                                     draggable="true" 
+                                int lottieSize = planted.RewardAsset.PhaseLevel switch
+                                {
+                                    1 => 65,
+                                    2 => 82,
+                                    3 => 95,
+                                    _ => 65
+                                };
+
+                                string jsonFile = (planted.RewardAsset.RealmType, planted.RewardAsset.PhaseLevel) switch
+                                {
+                                    ("cyber", 1) => "giris_plant.json",
+                                    ("cyber", 2) => "orta_wind.json",
+                                    ("cyber", 3) => "buyuk.json",
+                                    ("dragon", 1) => "dragon_kucuk.json",
+                                    ("dragon", 2) => "dragon_orta.json",
+                                    ("dragon", 3) => "dragon_buyuk.json",
+                                    _ => "giris_plant.json"
+                                };
+
+                                <div class="planted-asset"
+                                     draggable="true"
                                      data-asset-id="@planted.Id"
-                                     ondragstart="onDragStart(event)"
-                                     ondragend="onDragEnd(event)"
-                                     style="cursor: grab; width: 65px; height: 65px; display: flex; align-items: center; justify-content: center;">
-                                    <video width="65" height="65" autoplay loop muted playsinline style="pointer-events: none;">
-                                        <source src="/assets/animations/@planted.RewardAsset.WebmFileName" type="video/webm">
-                                    </video>
-                                    <span class="position-absolute bottom-0 start-50 translate-middle-x badge bg-dark opacity-75" style="font-size: 8px;">F @planted.RewardAsset.PhaseLevel</span>
+                                     ondragstart="onDragStart(arguments[0])"
+                                     ondragend="onDragEnd(arguments[0])"
+                                     style="cursor: grab; width: 95px; height: 95px; display: flex; align-items: center; justify-content: center; position: relative;">
+
+                                    <div id="lottie_@planted.Id"
+                                         data-path="/assets/animations/@jsonFile"
+                                         style="width: @(lottieSize)px; height: @(lottieSize)px; pointer-events: none;">
+                                    </div>
+
+                                    <span class="position-absolute bottom-0 start-50 translate-middle-x badge bg-dark opacity-75"
+                                          style="font-size: 9px; margin-bottom: 2px;">
+                                        @{
+                                            string phaseLabel = (planted.RewardAsset.RealmType, planted.RewardAsset.PhaseLevel) switch
+                                            {
+                                                ("cyber", 1) => "🌱 Fidan",
+                                                ("cyber", 2) => "🌿 Orta",
+                                                ("cyber", 3) => "🌳 Ulu",
+                                                ("dragon", 1) => "🐣 Yavru",
+                                                ("dragon", 2) => "🐲 Genç",
+                                                ("dragon", 3) => "🔥 Ejder",
+                                                _ => "🌱 Fidan"
+                                            };
+                                        }
+                                        @phaseLabel
+                                    </span>
                                 </div>
                             }
                         </div>
@@ -75,8 +140,20 @@
 </div>
 
 @section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
     <script>
-        // ========== SÜRÜKLE-BIRAK (DRAG & DROP) FONKSİYONLARI ==========
+        // ========== LOTTİE ANİMASYONLARI ==========
+        document.querySelectorAll('[id^="lottie_"]').forEach(function (el) {
+            lottie.loadAnimation({
+                container: el,
+                renderer: 'svg',
+                loop: true,
+                autoplay: true,
+                path: el.dataset.path
+            });
+        });
+
+        // ========== DRAG & DROP ==========
         let draggedElement = null;
 
         function onDragStart(event) {
@@ -89,186 +166,174 @@
             event.preventDefault();
             event.dataTransfer.dropEffect = "move";
             event.currentTarget.style.backgroundColor = "#3a3d48";
-            event.currentTarget.style.borderColor = "#3498db !important";
         }
 
         function onDragEnd(event) {
-            if (draggedElement) {
-                draggedElement.style.opacity = "1";
-            }
-            // Tüm grid-cell'lerin rengini eski haline getir
+            if (draggedElement) draggedElement.style.opacity = "1";
             document.querySelectorAll('.grid-cell').forEach(cell => {
                 cell.style.backgroundColor = "#2c2f3a";
-                cell.style.borderColor = "#4f5366 !important";
             });
         }
 
         function onDrop(event) {
             event.preventDefault();
-
             if (!draggedElement) return;
 
             const targetCell = event.currentTarget;
-            const assetId = draggedElement.dataset.assetId;
-            const newX = targetCell.dataset.x;
-            const newY = targetCell.dataset.y;
+            const sourceCell = draggedElement.parentElement;
 
-            // Varlığı hedef grid-cell'e taşı
-            // Eğer hedef cell zaten doluysa işlemi iptal et
+            if (targetCell === sourceCell) {
+                draggedElement.style.opacity = "1";
+                return;
+            }
+
+            const assetId = draggedElement.dataset.assetId;
+            const newX = parseInt(targetCell.dataset.x);
+            const newY = parseInt(targetCell.dataset.y);
+
             const existingAsset = targetCell.querySelector('.planted-asset');
-            if (existingAsset && existingAsset !== draggedElement) {
+            if (existingAsset) {
                 alert("Bu kare zaten dolu! Başka bir kareye taşıyın.");
                 draggedElement.style.opacity = "1";
                 return;
             }
 
-            // Varlığı DOM'da yeni grid-cell'e taşı
-            targetCell.innerHTML = '';
             targetCell.appendChild(draggedElement);
+            draggedElement.style.opacity = "1";
+            targetCell.style.backgroundColor = "#2c2f3a";
 
-            // Backend'e yeni koordinatları gönder
             fetch('/Home/MoveAsset', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    assetId: parseInt(assetId),
-                    newX: parseInt(newX),
-                    newY: parseInt(newY)
-                })
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ assetId: parseInt(assetId), newX, newY })
             })
-            .then(response => response.json())
+            .then(r => r.json())
             .then(data => {
-                if (data.success) {
-                    console.log("✅ Varlık başarıyla taşındı ve veritabanına kaydedildi!");
-                } else {
-                    alert("❌ Hata: Varlık taşınamadı. Lütfen sayfayı yenileyin.");
+                if (!data.success) {
+                    alert("❌ Taşıma başarısız: " + (data.message || "Bilinmeyen hata."));
                     location.reload();
                 }
             })
-            .catch(error => {
-                console.error("❌ Fetch hatası:", error);
-                alert("❌ Sunucu hatası. Lütfen sayfayı yenileyin.");
+            .catch(() => {
+                alert("❌ Sunucu hatası. Sayfa yenileniyor.");
                 location.reload();
             });
-
-            draggedElement.style.opacity = "1";
-            targetCell.style.backgroundColor = "#2c2f3a";
-            targetCell.style.borderColor = "#4f5366 !important";
         }
 
-        // ========== MEVCUT ODAKLANMA TİMERİ VE DİĞER FONKSİYONLAR ==========
+        // ========== TIMER ==========
         let timer = null;
-        let totalSeconds = 10;  // Başlangıçta Faz 1 (10 saniye)
+        let totalSeconds = 10;
         let isRunning = false;
         const currentRealm = "@currentRealm";
 
         const durationSelect = document.getElementById('timerDuration');
-        const display = document.getElementById('countdownDisplay');
-        const btnStart = document.getElementById('btnStart');
-        const btnGiveUp = document.getElementById('btnGiveUp');
+        const display        = document.getElementById('countdownDisplay');
+        const btnStart       = document.getElementById('btnStart');
+        const btnGiveUp      = document.getElementById('btnGiveUp');
+        const phaseIcon      = document.getElementById('phaseIcon');
+        const phaseText      = document.getElementById('phaseText');
 
-        // Süre seçimi değiştiğinde ekranı güncelle
-        durationSelect.addEventListener('change', function() {
-            if(!isRunning) {
-                // Faz 1: 10 saniye, Faz 2: 30 dakika, Faz 3: 60 dakika
-                if (this.value == "10") {
-                    totalSeconds = 10;  // 10 saniye
-                } else {
-                    totalSeconds = this.value * 60;  // Dakika cinsinden, saniyeye çevir
-                }
-                updateDisplay();
+        const realmPhaseInfo = {
+            'cyber': {
+                'test': { seconds: 10,  icon: '🌱', text: 'Küçük bir fidan kazanacaksınız.' },
+                'mid':  { seconds: 20,  icon: '🌿', text: 'Orta boy ağaç kazanacaksınız.' },
+                'big':  { seconds: 30,  icon: '🌳', text: 'Ulu ağaç kazanacaksınız.' }
+            },
+            'dragon': {
+                'test': { seconds: 10,  icon: '🐣', text: 'Yavru bir ejderha kazanacaksınız.' },
+                'mid':  { seconds: 20,  icon: '🐲', text: 'Genç bir ejderha kazanacaksınız.' },
+                'big':  { seconds: 30,  icon: '🔥', text: 'Güçlü bir ejderha kazanacaksınız.' }
+            },
+            'cartoon': {
+                'test': { seconds: 10,  icon: '⭐', text: 'Küçük bir karakter kazanacaksınız.' },
+                'mid':  { seconds: 20,  icon: '🌟', text: 'Orta boy karakter kazanacaksınız.' },
+                'big':  { seconds: 30,  icon: '💫', text: 'Büyük karakter kazanacaksınız.' }
             }
+        };
+
+        const phaseInfo = realmPhaseInfo[currentRealm] || realmPhaseInfo['cyber'];
+
+        function applySelection() {
+            const info = phaseInfo[durationSelect.value];
+            totalSeconds = info.seconds;
+            phaseIcon.textContent = info.icon;
+            phaseText.textContent = info.text;
+            updateDisplay();
+        }
+
+        durationSelect.addEventListener('change', function () {
+            if (!isRunning) applySelection();
         });
 
         function updateDisplay() {
-            let minutes = Math.floor(totalSeconds / 60);
-            let seconds = totalSeconds % 60;
-            display.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            const m = Math.floor(totalSeconds / 60).toString().padStart(2, '0');
+            const s = (totalSeconds % 60).toString().padStart(2, '0');
+            display.textContent = `${m}:${s}`;
         }
 
-        btnStart.addEventListener('click', function() {
-            if (!isRunning) {
-                // Sayacı Başlat
-                isRunning = true;
-                durationSelect.disabled = true;
-                btnStart.classList.add('d-none');
-                btnGiveUp.classList.remove('d-none');
+        btnStart.addEventListener('click', function () {
+            if (isRunning) return;
+            isRunning = true;
+            durationSelect.disabled = true;
+            btnStart.classList.add('d-none');
+            btnGiveUp.classList.remove('d-none');
+            applySelection();
 
-                // Faz 1: 10 saniye, Faz 2: 30 dakika, Faz 3: 60 dakika
-                if (durationSelect.value == "10") {
-                    totalSeconds = 10;  // 10 saniye
-                } else {
-                    totalSeconds = durationSelect.value * 60;  // Dakika cinsinden, saniyeye çevir
-                }
+            timer = setInterval(function () {
+                totalSeconds--;
                 updateDisplay();
-
-                timer = setInterval(function() {
-                    totalSeconds--;
-                    updateDisplay();
-
-                    if (totalSeconds <= 0) {
-                        clearInterval(timer);
-                        onFocusComplete();
-                    }
-                }, 1000);
-            }
+                if (totalSeconds <= 0) {
+                    clearInterval(timer);
+                    onFocusComplete();
+                }
+            }, 1000);
         });
 
-        btnGiveUp.addEventListener('click', function() {
-            // Pes Etme Durumu
+        btnGiveUp.addEventListener('click', function () {
             clearInterval(timer);
             isRunning = false;
             durationSelect.disabled = false;
             btnStart.classList.remove('d-none');
             btnGiveUp.classList.add('d-none');
-
-            // Faz 1: 10 saniye, Faz 2: 30 dakika, Faz 3: 60 dakika
-            if (durationSelect.value == "10") {
-                totalSeconds = 10;  // 10 saniye
-            } else {
-                totalSeconds = durationSelect.value * 60;  // Dakika cinsinden, saniyeye çevir
-            }
-            updateDisplay();
-            alert("Odaklanma seansı iptal edildi. Karakter kazanamadınız. 😢");
+            applySelection();
+            alert("Odaklanma seansı iptal edildi. Ağaç kazanamadınız. 😢");
         });
 
-        // BAŞARIYLA TAMAMLANDIĞINDA TETİKLENEN AJAX FONKSİYONU
         function onFocusComplete() {
             isRunning = false;
             durationSelect.disabled = false;
             btnStart.classList.remove('d-none');
             btnGiveUp.classList.add('d-none');
 
-            // Haritadaki boş kareleri tespit et
-            const emptyCells = [];
-            document.querySelectorAll('.grid-cell').forEach(cell => {
-                if (cell.children.length === 0) {
-                    emptyCells.push({ x: cell.dataset.x, y: cell.dataset.y });
-                }
-            });
+            fetch(`/Home/GetEmptyCells?realm=${currentRealm}`)
+                .then(r => r.json())
+                .then(emptyCells => {
+                    if (emptyCells.length === 0) {
+                        alert("Tebrikler! Odaklandınız ama adanızda hiç boş yer kalmadı! 🌳");
+                        return;
+                    }
 
-            if (emptyCells.length === 0) {
-                alert("Tebrikler! Odaklandınız ama adanızda hiç boş yer kalmadı!");
-                return;
-            }
+                    const randomCell = emptyCells[Math.floor(Math.random() * emptyCells.length)];
+                    const rawVal = durationSelect.value;
+                    const durationMinutes = rawVal === 'test' ? 0 : rawVal === 'mid' ? 30 : 60;
 
-            // Boş karelerden rastgele birini seç
-            const randomCell = emptyCells[Math.floor(Math.random() * emptyCells.length)];
-            const selectedMinutes = durationSelect.value;
-
-            // Arka plana (Backend) veriyi gönderiyoruz (CRUD - Ekleme)
-            fetch(`/Home/CompleteSession?durationMinutes=${selectedMinutes}&realm=${currentRealm}&gridX=${randomCell.x}&gridY=${randomCell.y}`, {
-                method: 'POST'
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert(`🎉 Harika iş! ${selectedMinutes} dakika odaklanarak "${data.assetName}" kazandınız ve adanıza eklendi!`);
-                    location.reload(); // Haritayı güncellemek için sayfayı yenile
-                }
-            });
+                    fetch(`/Home/CompleteSession?durationMinutes=${durationMinutes}&realm=${currentRealm}&gridX=${randomCell.x}&gridY=${randomCell.y}`, {
+                        method: 'POST'
+                    })
+                    .then(r => r.json())
+                    .then(data => {
+                        if (data.success) {
+                            const emoji = data.phaseLevel === 1 ? '🌱' : data.phaseLevel === 2 ? '🌿' : '🌳';
+                            alert(`🎉 Harika iş! "${data.assetName}" ${emoji} kazandınız!\n💰 +${data.coin} coin`);
+                            location.reload();
+                        } else {
+                            alert("❌ Hata: " + (data.message || "Ağaç eklenemedi."));
+                        }
+                    })
+                    .catch(() => alert("❌ Sunucu hatası."));
+                });
         }
+
+        applySelection();
     </script>
 }

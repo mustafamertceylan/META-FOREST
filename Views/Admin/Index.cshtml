@@ -1,0 +1,82 @@
+@using MetaForest.Models
+@model List<RewardAsset>
+
+@{
+    ViewData["Title"] = "Ödülleri Yönet";
+}
+
+<div class="container-fluid py-5" style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); min-height: 100vh;">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1 class="text-white mb-2">
+                <i class="bi bi-star-fill text-warning"></i> Kazanýlabilir Ödüller
+            </h1>
+            <p class="text-muted">Toplam: @Model.Count ödül</p>
+        </div>
+        <div class="col-md-4 text-end">
+            <a href="@Url.Action("Create")" class="btn btn-primary btn-lg">
+                <i class="bi bi-plus-circle"></i> Yeni Ödül Ekle
+            </a>
+        </div>
+    </div>
+
+    @if (Model.Count == 0)
+    {
+        <div class="alert alert-info text-center py-5">
+            <i class="bi bi-info-circle fs-3"></i>
+            <p class="mt-2">Henüz ödül eklenmemiþ. <a href="@Url.Action("Create")" class="alert-link">Yeni ödül oluþturun</a></p>
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-dark table-hover border-secondary">
+                <thead class="table-active">
+                    <tr>
+                        <th class="text-warning"><i class="bi bi-hash"></i> ID</th>
+                        <th class="text-warning"><i class="bi bi-gift"></i> Ödül Adý</th>
+                        <th class="text-warning"><i class="bi bi-globe"></i> Bölge</th>
+                        <th class="text-warning"><i class="bi bi-diagram-3"></i> Evrim Seviyesi</th>
+                        <th class="text-warning"><i class="bi bi-film"></i> Animasyon Dosyasý</th>
+                        <th class="text-warning text-center"><i class="bi bi-tools"></i> Ýþlemler</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td class="text-info">@item.Id</td>
+                            <td class="text-white fw-bold">@item.Name</td>
+                            <td>
+                                <span class="badge bg-info text-dark">@item.RealmType</span>
+                            </td>
+                            <td>
+                                <span class="badge bg-warning text-dark">Seviye @item.PhaseLevel</span>
+                            </td>
+                            <td class="text-muted small">@item.WebmFileName</td>
+                            <td class="text-center">
+                                <a href="@Url.Action("Edit", new { id = item.Id })" class="btn btn-sm btn-outline-primary">
+                                    <i class="bi bi-pencil"></i> Düzenle
+                                </a>
+                                <form method="post" action="@Url.Action("Delete")" style="display: inline;">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@item.Id" />
+                                    <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Silmek istediðinize emin misiniz?');">
+                                        <i class="bi bi-trash"></i> Sil
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+<style>
+    .table-hover tbody tr:hover {
+        background-color: rgba(0, 150, 255, 0.1) !important;
+        border-left: 3px solid #0096ff;
+    }
+</style>
