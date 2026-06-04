@@ -27,7 +27,7 @@
                 </select>
             </div>
 
-            <div id="countdownDisplay" class="display-1 fw-bold my-4 text-success" style="font-family: monospace;">01:00</div>
+            <div id="countdownDisplay" class="display-1 fw-bold my-4 text-success" style="font-family: monospace;">00:10</div>
 
             <button id="btnStart" class="btn btn-lg btn-success w-100 fw-bold shadow">ODAKLANMAYI BAŞLAT</button>
             <button id="btnGiveUp" class="btn btn-lg btn-danger w-100 fw-bold mt-2 d-none">PES ET (Sıfırla)</button>
@@ -160,7 +160,7 @@
 
         // ========== MEVCUT ODAKLANMA TİMERİ VE DİĞER FONKSİYONLAR ==========
         let timer = null;
-        let totalSeconds = 60;
+        let totalSeconds = 10;  // Başlangıçta Faz 1 (10 saniye)
         let isRunning = false;
         const currentRealm = "@currentRealm";
 
@@ -172,7 +172,12 @@
         // Süre seçimi değiştiğinde ekranı güncelle
         durationSelect.addEventListener('change', function() {
             if(!isRunning) {
-                totalSeconds = this.value * 60;
+                // Faz 1: 10 saniye, Faz 2: 30 dakika, Faz 3: 60 dakika
+                if (this.value == "10") {
+                    totalSeconds = 10;  // 10 saniye
+                } else {
+                    totalSeconds = this.value * 60;  // Dakika cinsinden, saniyeye çevir
+                }
                 updateDisplay();
             }
         });
