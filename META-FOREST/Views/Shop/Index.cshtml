@@ -1,0 +1,161 @@
+@{
+	ViewData["Title"] = "MetaForest Mağazası";
+	int totalCoins = (int?)ViewBag.TotalCoins ?? 0;
+	List<dynamic> products = ViewBag.Products;
+}
+
+<div class="container-fluid mt-5 mb-5" style="background: linear-gradient(135deg, #0d0f15 0%, #1a1c23 100%); min-height: 100vh; padding: 40px 20px;">
+
+	<!-- BAŞLIK VE BAKIYE BÖLÜMÜ -->
+	<div class="row mb-5">
+		<div class="col-12">
+			<div class="card shadow-lg border-0" style="background-color: #0d0f15; border: 3px solid #3498db !important;">
+				<div class="card-body text-center py-5">
+					<h1 class="display-4 fw-bold text-info mb-3">
+						<i class="fas fa-store"></i> MetaForest Mağazası
+					</h1>
+
+					<!-- DEVASA BAKIYE GÖSTERIMI -->
+					<div class="mt-4 p-4" style="background: rgba(52, 152, 219, 0.1); border-radius: 15px; border: 2px solid #3498db;">
+						<p class="text-secondary mb-2">💰 Mevcut Bakiyeniz</p>
+						<h2 class="display-2 fw-bold text-success" id="totalCoinsDisplay">
+							<span id="coinAmount">@totalCoins</span> <small style="font-size: 0.6em;">COIN</small>
+						</h2>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- ÜRÜNLER GRID'İ -->
+	<div class="row g-4">
+		@if (products != null && products.Count > 0)
+		{
+			@foreach (var product in products)
+			{
+				<div class="col-md-6 col-lg-4 col-xl-3">
+					<div class="card h-100 shadow-lg product-card" 
+						 style="background-color: #1a1c23; border: 2px solid #4f5366; transition: all 0.3s ease; cursor: pointer;"
+						 onmouseover="this.style.borderColor='#3498db'; this.style.boxShadow='0 0 20px rgba(52, 152, 219, 0.5)';"
+						 onmouseout="this.style.borderColor='#4f5366'; this.style.boxShadow='0 10px 25px rgba(0,0,0,0.5)';">
+
+						<!-- ÜRÜN İKON -->
+						<div class="card-body text-center pt-5 pb-3">
+							<div style="font-size: 4rem; margin-bottom: 15px;">
+								@product.Icon
+							</div>
+						</div>
+
+						<!-- ÜRÜN BİLGİSİ -->
+						<div class="card-body pt-0">
+							<h5 class="card-title text-info fw-bold">
+								@product.Name
+							</h5>
+							<p class="card-text text-secondary small mb-3">
+								@product.Description
+							</p>
+						</div>
+
+						<!-- FİYAT VE BUTON -->
+						<div class="card-footer bg-transparent border-top" style="border-color: #4f5366 !important;">
+							<div class="d-flex justify-content-between align-items-center mb-3">
+								<span class="badge bg-warning text-dark fs-6">
+									💰 @product.Cost COIN
+								</span>
+								<span class="badge bg-info text-dark fs-6" id="affordability-@product.Id">
+									@{
+										if (totalCoins >= product.Cost) {
+											<text>✅ Alabilir</text>
+										} else {
+											<text>❌ Yetersiz</text>
+										}
+									}
+								</span>
+							</div>
+
+							<button class="btn w-100 fw-bold" 
+									style="background-color: #2ecc71; color: white; border: none;"
+									onclick="buyItem('@product.Name', @product.Cost, @product.Id)"
+									id="btn-@product.Id"
+									@(totalCoins < product.Cost ? "disabled" : "")>
+								🛍️ Satın Al
+							</button>
+						</div>
+					</div>
+				</div>
+			}
+		}
+		else
+		{
+			<div class="col-12">
+				<div class="alert alert-warning text-center" role="alert">
+					<i class="fas fa-inbox"></i> Mağazada ürün bulunmuyor!
+				</div>
+			</div>
+		}
+	</div>
+
+	<!-- AÇIKLAMA BÖLÜMÜ -->
+	<div class="row mt-5">
+		<div class="col-12">
+			<div class="card shadow-lg border-0" style="background-color: #1a1c23; border: 2px solid #2ecc71 !important;">
+				<div class="card-body text-secondary">
+					<h5 class="text-info mb-3">
+						<i class="fas fa-info-circle"></i> Mağaza Hakkında
+					</h5>
+					<p class="mb-2">
+						💡 <strong>Coinleri Nasıl Kazanırsınız?</strong> Odaklanma seansları tamamlayarak coin kazanın. 
+						Her 1 dakika = 10 Coin
+					</p>
+					<p class="mb-2">
+						🎁 <strong>Neler Alabilirsiniz?</strong> Ürünler ve temalar satın alarak kişiselleştirin.
+					</p>
+					<p>
+						⚡ <strong>Özel Teklifler?</strong> VIP üyelik size ekstra bonuslar sağlar!
+					</p>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+@section Scripts {
+	<script>
+		// ========== SATINALMA FONKSİYONU ==========
+		function buyItem(itemName, cost, itemId) {
+			// Onay al
+			if (!confirm(`"${itemName}" için ${cost} Coin harcamak istediğinize emin misiniz?`)) {
+				return;
+			}
+
+			// AJAX ile backend'e gönder
+			fetch('/Shop/BuyItem', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/x-www-form-urlencoded'
+				},
+				body: `itemName=${encodeURIComponent(itemName)}&cost=${cost}`
+			})
+			.then(response => response.json())
+			.then(data => {
+				if (data.success) {
+					// Başarılı satın alma
+					alert(data.message);
+
+					// Bakiyeyi güncelle
+					document.getElementById('coinAmount').textContent = data.remainingCoins;
+
+					// Sayfayı yenile (tüm butonları güncelle)
+					setTimeout(() => location.reload(), 500);
+				} else {
+					// Başarısız satın alma
+					alert('❌ ' + data.message);
+				}
+			})
+			.catch(error => {
+				console.error('Hata:', error);
+				alert('❌ Bir hata oluştu. Lütfen sayfayı yenileyin.');
+			});
+		}
+	</script>
+}
