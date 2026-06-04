@@ -86,9 +86,13 @@ namespace MetaForest.Controllers
         }
 
         [Authorize(Roles = "Admin")]
-        public IActionResult AdminPanel()
+        public async Task<IActionResult> AdminPanel()
         {
-            return View();
+            // Veritabanından tüm RewardAssets'i çek
+            var rewardAssets = await _context.RewardAssets.ToListAsync();
+
+            // Listeyi View'a model olarak gönder
+            return View(rewardAssets);
         }
 
         // ========== SÜRÜKLE-BIRAK (DRAG & DROP) GÜNCELLEME ==========
