@@ -1,6 +1,7 @@
 ﻿@using Microsoft.AspNetCore.Identity
 @inject SignInManager<IdentityUser> SignInManager
 @inject UserManager<IdentityUser> UserManager
+@inject MetaForest.Services.IWeatherService WeatherService
 
 <!DOCTYPE html>
 <html lang="tr">
@@ -43,6 +44,26 @@
                             <li class="nav-item">
                                 <a class="nav-link text-warning fw-bold" asp-area="" asp-controller="Home" asp-action="AdminPanel">⚙️ Yönetici Paneli</a>
                             </li>
+                        }
+
+                        @* Hava Durumu Bilgisi *@
+                        @{
+                            try
+                            {
+                                var weather = await WeatherService.GetWeatherAsync();
+                                if (weather != null && !weather.IsError)
+                                {
+                                    <li class="nav-item ms-3">
+                                        <span class="nav-link text-info" title="@weather.WeatherDescription - Hava hissi: @weather.FeelsLike°C, Nem: %@weather.Humidity">
+                                            @weather.FormattedWeather
+                                        </span>
+                                    </li>
+                                }
+                            }
+                            catch (Exception)
+                            {
+                                <!-- Hava durumu hatasını sessizce yoksay -->
+                            }
                         }
                     </ul>
 

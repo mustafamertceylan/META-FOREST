@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using MetaForest.Data;
 using Microsoft.AspNetCore.Identity;
+using MetaForest.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,7 +28,10 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.AccessDeniedPath = "/Account/AccessDenied";
 });
 
-// 2. MVC (Model-View-Controller) Servislerini Ekleme
+// 2. Hava Durumu Servisi Ekleme
+builder.Services.AddHttpClient<IWeatherService, WeatherService>();
+
+// 3. MVC (Model-View-Controller) Servislerini Ekleme
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
@@ -42,6 +46,13 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseStaticFiles(); // WebM videoları, CSS ve JS dosyaları için hayati önem taşır
 
+// Veritabanı migrasyonlarını otomatik olarak uygula
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    dbContext.Database.Migrate();
+}
+
 app.UseRouting();
 
 app.UseAuthentication(); // Üyelik/Giriş sistemi için gerekli
@@ -51,5 +62,7 @@ app.UseAuthorization();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
+
+app.Run();
 
 app.Run();
