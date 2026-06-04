@@ -22,6 +22,41 @@ namespace MetaForest.Controllers
             _userManager = userManager;
         }
 
+        [AllowAnonymous]
+        public IActionResult Landing()
+        {
+            return View();
+        }
+
+        [AllowAnonymous]
+        [Route("api/init-db")]
+        public IActionResult InitializeDatabase()
+        {
+            try
+            {
+                _context.Database.ExecuteSqlRaw(@"
+                    IF NOT EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'TaskItems')
+                    BEGIN
+                        CREATE TABLE TaskItems (
+                            Id INT PRIMARY KEY IDENTITY(1,1),
+                            UserId NVARCHAR(MAX) NOT NULL,
+                            Title NVARCHAR(255) NOT NULL,
+                            Description NVARCHAR(1000) NULL,
+                            IsCompleted BIT NOT NULL DEFAULT 0,
+                            CreatedAt DATETIME2 NOT NULL,
+                            UpdatedAt DATETIME2 NOT NULL,
+                            Priority NVARCHAR(20) NOT NULL DEFAULT 'Medium'
+                        )
+                    END
+                ");
+                return Ok(new { message = "Veritabanı başlatıldı" });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { error = ex.Message });
+            }
+        }
+
         public async Task<IActionResult> Index(string realm = "cyber")
         {
             var userId = _userManager.GetUserId(User) ?? string.Empty;

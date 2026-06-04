@@ -100,7 +100,7 @@ namespace MetaForest.Controllers
         public async Task<IActionResult> Logout()
         {
             await _signInManager.SignOutAsync();
-            return RedirectToAction("Login", "Account");
+            return RedirectToAction("Landing", "Home");
         }
 
         public IActionResult AccessDenied() => View();
