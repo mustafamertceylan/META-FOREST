@@ -68,6 +68,22 @@ namespace META_FOREST.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "HarcananCoins",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    UserId = table.Column<string>(type: "TEXT", nullable: false),
+                    ItemName = table.Column<string>(type: "TEXT", nullable: false),
+                    SpentAmount = table.Column<int>(type: "INTEGER", nullable: false),
+                    PurchaseDate = table.Column<DateTime>(type: "TEXT", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_HarcananCoins", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "RewardAssets",
                 columns: table => new
                 {
@@ -81,6 +97,25 @@ namespace META_FOREST.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_RewardAssets", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "TaskItems",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    UserId = table.Column<string>(type: "TEXT", nullable: false),
+                    Title = table.Column<string>(type: "TEXT", maxLength: 255, nullable: false),
+                    Description = table.Column<string>(type: "TEXT", maxLength: 1000, nullable: true),
+                    IsCompleted = table.Column<bool>(type: "INTEGER", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    Priority = table.Column<string>(type: "TEXT", maxLength: 20, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_TaskItems", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -278,7 +313,13 @@ namespace META_FOREST.Migrations
                 name: "FocusSessions");
 
             migrationBuilder.DropTable(
+                name: "HarcananCoins");
+
+            migrationBuilder.DropTable(
                 name: "PlantedAssets");
+
+            migrationBuilder.DropTable(
+                name: "TaskItems");
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");
